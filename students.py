@@ -3,16 +3,20 @@ from pymongo.mongo_client import MongoClient
 from flask_basicauth import BasicAuth
 import certifi
 
+app = Flask(__name__)
+app.config['BASIC_AUTH_USERNAME'] = 'name'
+app.config['BASIC_AUTH_PASSWORD'] = 'pass'
+basic_auth = BasicAuth(app)
+
 ca = certifi.where()
 uri = "mongodb+srv://Pawit:208902546@cluster0.bsumksw.mongodb.net/?retryWrites=true&w=majority"
 
-
-app = Flask(__name__)
 @app.route("/")
 def Greet():
     return "<p>Welcome to Student Management AP</p>"
 
 @app.route("/students",methods=["GET"])
+@basic_auth.required
 def get_all_student():
     try:
         client = MongoClient(uri, tlsCAFile=ca)
@@ -21,7 +25,7 @@ def get_all_student():
         all_student = list(collection.find())
         return jsonify(all_student)
     except Exception as e:
-            print(e)
+        print(e)
     finally:
         client.close()
 
