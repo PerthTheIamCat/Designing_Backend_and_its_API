@@ -34,6 +34,7 @@ def get_all_student():
         print(e)
 
 @app.route("/students/<string:std_id>", methods=["GET"])
+@basic_auth.required
 def get_id_student(std_id):
     try:
         db = client["students"]
@@ -48,6 +49,7 @@ def get_id_student(std_id):
         print(e)
 
 @app.route("/students", methods=["POST"])
+@basic_auth.required
 def add_new_student():
     try:
         db = client["students"]
@@ -70,6 +72,7 @@ def add_new_student():
         print(e)
 
 @app.route("/students/<string:std_id>", methods=["PUT"])
+@basic_auth.required
 def update_student(std_id):
     try:
         db = client["students"]
@@ -92,6 +95,7 @@ def update_student(std_id):
         print(e)
 
 @app.route("/students/<string:std_id>", methods=["DELETE"])
+@basic_auth.required
 def delete_student(std_id):
     try:
         db = client["students"]
