@@ -92,6 +92,24 @@ def update_student(std_id):
     finally:
         client.close()
 
+@app.route("/students/<string:std_id>", methods=["DELETE"])
+def delete_student(std_id):
+    try:
+        client = MongoClient(uri, tlsCAFile=ca)
+        db = client["students"]
+        collection = db["std_info"]
+        all_student = list(collection.find())
+        if(next((s for s in all_student if s["_id"] == std_id), None)):
+            collection.delete_one({"_id":std_id})
+            return jsonify({"message":"Student deleted successfully"}),200
+        else:
+            return jsonify({"error":"Student not found"}),404
+        
+    except Exception as e:
+        print(e)
+    finally:
+        client.close()
+
 if __name__=="__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
 
