@@ -11,6 +11,13 @@ basic_auth = BasicAuth(app)
 ca = certifi.where()
 uri = "mongodb+srv://Pawit:208902546@cluster0.bsumksw.mongodb.net/?retryWrites=true&w=majority"
 
+try:
+    client = MongoClient(uri, tlsCAFile=ca)
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
 @app.route("/")
 def Greet():
     return "<p>Welcome to Student Management AP</p>"
@@ -19,20 +26,16 @@ def Greet():
 @basic_auth.required
 def get_all_student():
     try:
-        client = MongoClient(uri, tlsCAFile=ca)
         db = client["students"]
         collection = db["std_info"]
         all_student = list(collection.find())
         return jsonify(all_student)
     except Exception as e:
         print(e)
-    finally:
-        client.close()
 
 @app.route("/students/<string:std_id>", methods=["GET"])
 def get_id_student(std_id):
     try:
-        client = MongoClient(uri, tlsCAFile=ca)
         db = client["students"]
         collection = db["std_info"]
         all_student = list(collection.find())
@@ -43,13 +46,10 @@ def get_id_student(std_id):
             return jsonify({"error":"Student not found"}), 404
     except Exception as e:
         print(e)
-    finally:
-        client.close()
 
 @app.route("/students", methods=["POST"])
 def add_new_student():
     try:
-        client = MongoClient(uri, tlsCAFile=ca)
         db = client["students"]
         collection = db["std_info"]
         data = request.get_json()
@@ -68,13 +68,10 @@ def add_new_student():
         
     except Exception as e:
         print(e)
-    finally:
-        client.close()
 
 @app.route("/students/<string:std_id>", methods=["PUT"])
 def update_student(std_id):
     try:
-        client = MongoClient(uri, tlsCAFile=ca)
         db = client["students"]
         collection = db["std_info"]
         data = request.get_json()
@@ -93,13 +90,10 @@ def update_student(std_id):
         
     except Exception as e:
         print(e)
-    finally:
-        client.close()
 
 @app.route("/students/<string:std_id>", methods=["DELETE"])
 def delete_student(std_id):
     try:
-        client = MongoClient(uri, tlsCAFile=ca)
         db = client["students"]
         collection = db["std_info"]
         all_student = list(collection.find())
@@ -111,18 +105,9 @@ def delete_student(std_id):
         
     except Exception as e:
         print(e)
-    finally:
-        client.close()
 
 if __name__=="__main__":
     app.run(host="0.0.0.0",port=5000,debug=True)
 
-try:
-    client = MongoClient(uri, tlsCAFile=ca)
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-        print(e)
-finally:
-    print("disconnected")
-    client.close()
+print("disconnected")
+client.close()
