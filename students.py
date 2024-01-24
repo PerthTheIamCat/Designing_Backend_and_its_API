@@ -1,5 +1,6 @@
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 from pymongo.mongo_client import MongoClient
+from flask_basicauth import BasicAuth
 import certifi
 
 ca = certifi.where()
@@ -37,7 +38,32 @@ def get_id_student(std_id):
         else:
             return jsonify({"error":"Student not found"}), 404
     except Exception as e:
-            print(e)
+        print(e)
+    finally:
+        client.close()
+
+@app.route("/students", methods=["POST"])
+def add_new_student():
+    try:
+        client = MongoClient(uri, tlsCAFile=ca)
+        db = client["students"]
+        collection = db["std_info"]
+        data = request.get_json()
+        new_student={
+            "_id":data["_id"],
+            "fullname": data["fullname"],
+            "major": data["major"],
+            "gpa": data["gpa"]
+        }
+        all_student = list(collection.find())
+        if(next((s for s in all_student if s["_id"] == data["_id"]), None)):
+            return jsonify( {"error":"Cannot create new student"})
+        else:
+            collection.insert_one(new_student)
+            return jsonify(new_student)
+        
+    except Exception as e:
+        print(e)
     finally:
         client.close()
 
